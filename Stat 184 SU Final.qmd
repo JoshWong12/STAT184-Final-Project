@@ -1,0 +1,191 @@
+---
+title: "Stat 184 SU Final"
+author: "Aashray Raut, Joshua Delos Cientos Wong"
+format: pdf
+---
+
+```{r}
+#| echo: false
+
+# Load required packages --
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(rnaturalearth)
+library(rnaturalearthdata)
+
+# Reading in datasets
+alc_consumption <- read.csv(
+  "C:/Users/Joshua/Downloads/World Alc Consumption.csv"
+  )
+world_happiness <- read.csv(
+  "C:/Users/Joshua/Downloads/World Happiness 2020.csv"
+  )
+
+```
+
+```{r}
+#| echo: false
+
+# initaial view of data --
+glimpse(alc_consumption)
+glimpse(world_happiness)
+
+```
+
+
+```{r}
+# Prepare and join data --
+world_happiness<- world_happiness %>%
+  mutate(Country.Name = Country.name)
+
+world_data <- inner_join(
+  alc_consumption, 
+  world_happiness, 
+  by = "Country.Name"
+)
+
+# Get column names --
+names(world_data)
+
+# Inspect raw data --
+head(world_happiness)
+head(alc_consumption)
+
+# Clean up dataset --
+world_data <- world_data %>%
+  select(
+    Country.Name, 
+    Country.Code, 
+    X2020, 
+    Ladder.score, 
+    Healthy.life.expectancy, 
+    Logged.GDP.per.capita
+  ) %>% 
+  mutate(
+    Country = Country.Name, 
+    Code = Country.Code, 
+    AlcConsumption = X2020, 
+    Happiness = Ladder.score, 
+    LifeExpectancy = Healthy.life.expectancy, 
+    GDP_Per_Capita = Logged.GDP.per.capita
+  ) %>%
+  select(Country, 
+         Code, 
+         AlcConsumption, 
+         Happiness, 
+         LifeExpectancy, 
+         GDP_Per_Capita
+  ) %>%
+  drop_na()
+
+# Cleaned data --
+glimpse(world_data)
+
+```
+
+```{r}
+# 5 number summaries for Consumption, Happiness, Life Expectancy, GDP --
+summary(world_data)
+```
+
+```{r}
+# Load world map data --
+world <- ne_countries(
+  scale = "medium", 
+  returnclass = "sf"
+)
+
+# Join map with statistics --
+world_data_map <- world %>%
+  left_join(
+    world_data, 
+    by = c("iso_a3" = "Code")
+  )
+
+```
+
+```{r}
+# Plot global alcohol consumption --
+ggplot(data = world_data_map) +
+  geom_sf(
+    aes(fill = AlcConsumption), 
+    color = "grey", 
+    size = 0.1
+  ) +
+  scale_fill_viridis_c(
+    na.value = "grey", 
+    name = "Alcohol Consumption litres per 100,000"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Global Alcohol Consumption by Country (2020)"
+  )
+
+```
+
+```{r}
+# Plot global happiness --
+ggplot(data = WorldDataMap) +
+  geom_sf(
+    aes(fill = Happiness), 
+    color = "gray", size = 0.1
+  ) +
+  scale_fill_viridis_c(
+    na.value = "gray", 
+    name = "Happiness Index"
+    ) +
+  theme_minimal() +
+  labs(
+    title = "Global Happiness per Country (2020)"
+  )
+
+```
+
+```{r}
+# Plot GDP
+ggplot(data = WorldDataMap) +
+  geom_sf(
+    aes(fill = GDP_Per_Capita), 
+    color = "gray", 
+    size = 0.1
+  ) +
+  scale_fill_viridis_c(
+    na.value = "gray", 
+    name = "GDP purchasing power per capita"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "GDP Purchasing power per Country (2020)"
+  )
+
+```
+
+```{r}
+# Plot life expectancy --
+ggplot(data = WorldDataMap) +
+  geom_sf(
+    aes(fill = LifeExpectancy), 
+    color = "gray", 
+    size = 0.1
+  ) +
+  scale_fill_viridis_c(
+    na.value = "gray", 
+    name = "Life Expectancy"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Life Expectancy per Country (2020)"
+  )
+
+```
+
+
+
+
+
+
+
+
+
+
