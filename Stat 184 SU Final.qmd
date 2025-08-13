@@ -88,6 +88,27 @@ glimpse(world_data)
 # 5 number summaries for Consumption, Happiness, Life Expectancy, GDP --
 summary(world_data)
 ```
+```{r}
+# Top 6 for AlcConsumption
+world_data %>%
+  arrange(desc(AlcConsumption)) %>%
+  head(6)
+
+# Top 6 for Happiness
+world_data %>%
+  arrange(desc(Happiness)) %>%
+  head(6)
+
+# Top 6 for LifeExpectancy
+world_data %>%
+  arrange(desc(LifeExpectancy)) %>%
+  head(6)
+
+# Top 6 for GDP_Per_Capita
+world_data %>%
+  arrange(desc(GDP_Per_Capita)) %>%
+  head(6)
+```
 
 ```{r}
 # Load world map data --
